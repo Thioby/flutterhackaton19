@@ -58,6 +58,7 @@ flutter:
     - images/ic_gringing.png
     - images/ic_pensive.png
     - images/ic_slightly_smiling.png
+    - images/ic_eye.png
 
   #  assets:
   #    - images/logo.svg

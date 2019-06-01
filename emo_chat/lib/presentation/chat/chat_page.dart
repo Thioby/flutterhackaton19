@@ -141,13 +141,14 @@ class _ChatPageState extends State<ChatPage> {
 
     Message message = messageMapper.mapMessage(data.data);
     User currentUser = Provider.of<UserState>(context).user;
-    if (currentUser.id == message.from)
-      return _getParentMessage(context, currentUser.name, message.content);
 
-    return _getMessage(context, peerUser.name, message.content, message.hapiness);
+    if (currentUser.id == message.from)
+      return _getParentMessage(context, currentUser.name, message.content, message.isEye);
+
+    return _getMessage(context, peerUser.name, message.content, message.hapiness, message.isEye);
   }
 
-  Container _getParentMessage(BuildContext context, String _name, String text) => Container(
+  Container _getParentMessage(BuildContext context, String _name, String text, bool isEye) => Container(
       decoration: _getMessageBoxDecoration(),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
       child: Container(
@@ -155,7 +156,7 @@ class _ChatPageState extends State<ChatPage> {
             padding: EdgeInsets.all(10),
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[_getNameText(_name, context), _getMessageText(text)],
+              children: <Widget>[_getNameText(_name, context), isEye ? _getEmoti(999) :  _getMessageText(text)],
             ),
           ),
           decoration: BoxDecoration(
@@ -169,7 +170,7 @@ class _ChatPageState extends State<ChatPage> {
         fontWeight: FontWeight.bold,
       ));
 
-  Container _getMessage(BuildContext context, String _name, String text, double happiness) => Container(
+  Container _getMessage(BuildContext context, String _name, String text, double happiness, bool isEye) => Container(
       decoration: _getMessageBoxDecoration(),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
       child: Container(
@@ -182,10 +183,10 @@ class _ChatPageState extends State<ChatPage> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     _getNameText(_name, context),
-                    _getMessageText(text),
+                    isEye ? _getEmoti(999) : _getMessageText(text),
                   ],
                 ),
-                Padding(
+                if(!isEye) Padding(
                   padding: EdgeInsets.all(10),
                   child: _getEmoti(happiness),
                 ),
@@ -198,6 +199,15 @@ class _ChatPageState extends State<ChatPage> {
           )));
 
   Image _getEmoti(double happiness) {
+
+    if(happiness == 999) {
+      return Image.asset(
+        "images/ic_eye.png",
+        width: 20,
+        height: 20,
+      );
+    }
+
     var emoti = "images/ic_crying.png";
 
     if (happiness > 0.3) emoti = "images/ic_pensive.png";
@@ -220,13 +230,14 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
-  void _sendMessage() async {
+  void _sendMessage({isEye = false}) async {
     var currentUser = Provider.of<UserState>(context).user;
 
-    var message = messageInputController.text;
+    var message = isEye ? "eye-data" : messageInputController.text;
+
     var chatId = getChatId(currentUser, peerUser);
     var messageContent = Message(
-        currentUser.id, peerUser.id, message, this._smilePercent, false);
+        currentUser.id, peerUser.id, message, this._smilePercent, isEye);
 
     await Provider.of<MessageState>(context).sendMessage(messageContent, chatId);
     messageInputController.clear();
@@ -302,10 +313,12 @@ class _ChatPageState extends State<ChatPage> {
     this._rightEyeOpenPercent = rightEyeOpenPercent;
 
     var durationSinceLastEye = DateTime.now().difference(lastEyeDate);
-    if ((_isOnlyRightEyeOpen() || _isOnlyLeftEyeOpen()) && durationSinceLastEye.inSeconds > 2) {
+    if ((_isOnlyRightEyeOpen() || _isOnlyLeftEyeOpen()) && durationSinceLastEye.inSeconds > 10) {
 
       lastEyeDate = DateTime.now();
       debugPrint("oczko");
+
+      _sendMessage(isEye: true);
     }
 
     setState(() {
