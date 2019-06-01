@@ -5,7 +5,6 @@ import 'package:emo_chat/presentation/chat/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
-
   final FirebaseUserMapper userMapper = FirebaseUserMapper();
 
   @override
@@ -21,7 +20,8 @@ class HomePage extends StatelessWidget {
               }
               return ListView.builder(
                 padding: EdgeInsets.all(10.0),
-                itemBuilder: (context, index) => _buildItem(context, snapshot.data.documents[index]),
+                itemBuilder: (context, index) =>
+                    _buildItem(context, snapshot.data.documents[index]),
                 itemCount: snapshot.data.documents.length,
               );
             }),
@@ -37,13 +37,22 @@ class HomePage extends StatelessWidget {
 
   Widget _buildItem(BuildContext context, DocumentSnapshot document) {
     var user = userMapper.mapUser(document.data);
-    return Text(user.name);
+    return Padding(
+      padding: new EdgeInsets.all(20),
+      child: FlatButton(
+        child: Text(user.name),
+        onPressed: () => {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => ChatPage()))
+            },
+      ),
+    );
   }
 
   AppBar _appBar(BuildContext context) => AppBar(
-    centerTitle: true,
-    title: Text("Users"),
-    automaticallyImplyLeading: false,
-    backgroundColor: Colors.deepOrange,
-  );
+        centerTitle: true,
+        title: Text("Users"),
+        automaticallyImplyLeading: false,
+        backgroundColor: Colors.deepOrange,
+      );
 }

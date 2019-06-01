@@ -1,6 +1,4 @@
-import 'package:emo_chat/style/images.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class ChatPage extends StatelessWidget {
   @override
@@ -25,11 +23,6 @@ class ChatPage extends StatelessWidget {
   AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
         title: Text("Chat"),
-        leading: IconButton(
-          onPressed: () => Navigator.pop(context),
-          icon: SvgPicture.asset(Images.arrowBack),
-          color: Colors.white,
-        ),
         elevation: 0,
         backgroundColor: Colors.deepOrange,
       );
