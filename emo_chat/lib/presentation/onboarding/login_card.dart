@@ -72,6 +72,6 @@ class LoginCard extends StatelessWidget {
 
     FirebaseUser firebaseUser = await firebaseAuth.signInWithCredential(credential);
     await Provider.of<UserState>(context).setUser(firebaseUser);
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UsersPage()));
+    Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => UsersPage()));
   }
 }
