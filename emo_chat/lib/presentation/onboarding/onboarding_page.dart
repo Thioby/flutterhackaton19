@@ -27,12 +27,7 @@ class OnboardingPage extends StatelessWidget {
   void loginGoogle(BuildContext context) async {
     final GoogleSignIn googleSignIn = new GoogleSignIn();
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-//    GoogleSignInAccount googleUser = await googleSignIn.signIn();
-//    GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-//    FirebaseUser firebaseUser = await googleSignIn.signInWithGoogle(
-//      accessToken: googleAuth.accessToken,
-//      idToken: googleAuth.idToken,
-//    );
+
     GoogleSignInAccount googleUser = await googleSignIn.signIn();
     GoogleSignInAuthentication googleAuth = await googleUser.authentication;
     final AuthCredential credential = GoogleAuthProvider.getCredential(
