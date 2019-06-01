@@ -1,16 +1,17 @@
+import 'package:camera/camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emo_chat/infrastructure/firebase_message_mapper.dart';
-import 'package:emo_chat/main.dart';
-import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
-import 'package:flutter/material.dart';
-import 'package:camera/camera.dart';
 import 'package:emo_chat/models/message.dart';
 import 'package:emo_chat/models/user.dart';
+import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:emo_chat/providers/message_notifier.dart';
 import 'package:emo_chat/providers/user_notifier.dart';
 import 'package:emo_chat/utils/hash_utils.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
+import '../../main.dart';
 
 class ChatPage extends StatefulWidget {
   final User peerUser;
@@ -143,7 +144,7 @@ class _ChatPageState extends State<ChatPage> {
     if (currentUser.id == message.from)
       return _getParentMessage(context, currentUser.name, message.content);
 
-    return _getMessage(context, peerUser.name, message.content);
+    return _getMessage(context, peerUser.name, message.content, message.hapiness);
   }
 
   Container _getParentMessage(BuildContext context, String _name, String text) => Container(
@@ -154,13 +155,7 @@ class _ChatPageState extends State<ChatPage> {
             padding: EdgeInsets.all(10),
             child: new Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                _getNameText(_name, context),
-                new Container(
-                  margin: const EdgeInsets.only(top: 5.0),
-                  child: new Text(text, style: TextStyle(color: Colors.black54)),
-                )
-              ],
+              children: <Widget>[_getNameText(_name, context), _getMessageText(text)],
             ),
           ),
           decoration: BoxDecoration(
@@ -174,20 +169,26 @@ class _ChatPageState extends State<ChatPage> {
         fontWeight: FontWeight.bold,
       ));
 
-  Container _getMessage(BuildContext context, String _name, String text) => Container(
+  Container _getMessage(BuildContext context, String _name, String text, double happiness) => Container(
       decoration: _getMessageBoxDecoration(),
       padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
       child: Container(
           child: Padding(
             padding: EdgeInsets.all(10),
-            child: new Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            child: Row(
               children: <Widget>[
-                _getNameText(_name, context),
-                new Container(
-                  margin: const EdgeInsets.only(top: 5.0),
-                  child: new Text(text),
-                )
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    _getNameText(_name, context),
+                    _getMessageText(text),
+                  ],
+                ),
+                Padding(
+                  padding: EdgeInsets.all(10),
+                  child: _getEmoti(happiness),
+                ),
               ],
             ),
           ),
@@ -195,6 +196,29 @@ class _ChatPageState extends State<ChatPage> {
             color: Color(0x99FFBBDEFB),
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
           )));
+
+  Image _getEmoti(double happiness) {
+    var emoti = "images/ic_crying.png";
+
+    if (happiness > 0.3) emoti = "images/ic_pensive.png";
+
+    if (happiness > 0.5) emoti = "images/ic_slightly_smiling.png";
+
+    if (happiness > 0.7) emoti = "images/ic_gringing.png";
+
+    return Image.asset(
+      emoti,
+      width: 20,
+      height: 20,
+    );
+  }
+
+  Container _getMessageText(String text) {
+    return new Container(
+      margin: const EdgeInsets.only(top: 5.0),
+      child: new Text(text, style: TextStyle(color: Colors.black54)),
+    );
+  }
 
   void _sendMessage() async {
     var currentUser = Provider.of<UserState>(context).user;
