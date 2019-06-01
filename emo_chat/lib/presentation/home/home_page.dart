@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emo_chat/infrastructure/firebase_user_mapper.dart';
 import 'package:emo_chat/infrastructure/firestrore_tables.dart';
+import 'package:emo_chat/presentation/chat/chat_page.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatelessWidget {
@@ -10,6 +11,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: _appBar(context),
       body: Container(
         child: StreamBuilder(
             stream: Firestore.instance.collection(Tables.USERS).snapshots(),
@@ -22,7 +24,6 @@ class HomePage extends StatelessWidget {
                 itemBuilder: (context, index) => _buildItem(context, snapshot.data.documents[index]),
                 itemCount: snapshot.data.documents.length,
               );
-
             }),
       ),
     );
@@ -38,4 +39,11 @@ class HomePage extends StatelessWidget {
     var user = userMapper.mapUser(document.data);
     return Text(user.name);
   }
+
+  AppBar _appBar(BuildContext context) => AppBar(
+    centerTitle: true,
+    title: Text("Users"),
+    automaticallyImplyLeading: false,
+    backgroundColor: Colors.deepOrange,
+  );
 }
