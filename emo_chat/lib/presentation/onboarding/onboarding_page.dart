@@ -1,6 +1,7 @@
 import 'package:emo_chat/presentation/chat/chat_page.dart';
 import 'package:emo_chat/presentation/home/home_page.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
+import 'package:emo_chat/presentation/users/users_page.dart';
 import 'package:emo_chat/providers/user_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -38,6 +39,6 @@ class OnboardingPage extends StatelessWidget {
 
     FirebaseUser firebaseUser = await firebaseAuth.signInWithCredential(credential);
     await Provider.of<UserState>(context).setUser(firebaseUser);
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UsersPage()));
   }
 }
