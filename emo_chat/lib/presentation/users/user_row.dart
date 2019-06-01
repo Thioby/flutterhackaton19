@@ -64,7 +64,10 @@ class UserRow extends StatelessWidget {
           child: Container(
             height: 120,
             decoration: BoxDecoration(
-                color: Colors.white, borderRadius: _borderRadius()),
+                color: Colors.white,
+                borderRadius: _borderRadius(),
+                boxShadow: [BoxShadow(offset: Offset(0, 12), blurRadius: 10, spreadRadius: -15)],
+                border: Border.all(color: Colors.deepOrange, width: 2)),
           ),
         ),
       ],
