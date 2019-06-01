@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emo_chat/infrastructure/firebase_user_mapper.dart';
 import 'package:emo_chat/infrastructure/firestrore_tables.dart';
+import 'package:emo_chat/models/user.dart';
 import 'package:emo_chat/presentation/chat/chat_page.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:emo_chat/presentation/users/user_row.dart';
@@ -52,12 +53,12 @@ class UsersPage extends StatelessWidget {
 
   Widget _buildItem(BuildContext context, DocumentSnapshot document) {
     var user = userMapper.mapUser(document.data);
-    return _buildRow(context, user.name, user.photoUrl);
+    return _buildRow(context, user);
   }
 
-  Widget _buildRow(BuildContext context, String name, String url) {
-    return UserRow(name, url ?? PLACEHOLDER, () {
-      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage()));
+  Widget _buildRow(BuildContext context, User user) {
+    return UserRow(user.name, user.photoUrl ?? PLACEHOLDER, () {
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(user)));
     });
   }
 

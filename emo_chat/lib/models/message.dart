@@ -5,6 +5,9 @@ class Message {
   final User to;
   final String content;
   final String chatId;
+  final double hapiness;
+  final bool isEye;
 
-  Message(this.from, this.to, this.content, this.chatId);
+  Message(this.from, this.to, this.content, this.chatId, this.hapiness, this.isEye);
+
 }

@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emo_chat/models/message.dart';
-import 'package:emo_chat/models/user.dart';
 import 'package:flutter/foundation.dart';
 
 class MessageState with ChangeNotifier {
@@ -20,7 +19,9 @@ class MessageState with ChangeNotifier {
             'idFrom': content.from.id,
             'idTo': content.to.id,
             'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
-            'content': messageContent
+            'content': messageContent,
+            'isEye': content.isEye,
+            'hapiness': content.hapiness
           },
         );
       });

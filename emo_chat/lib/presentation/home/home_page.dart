@@ -49,7 +49,7 @@ class HomePage extends StatelessWidget {
       padding: new EdgeInsets.all(20),
       child: FlatButton(
         child: Text(user.name),
-        onPressed: () => {Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage()))},
+        onPressed: () => {Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage(user)))},
       ),
     );
   }

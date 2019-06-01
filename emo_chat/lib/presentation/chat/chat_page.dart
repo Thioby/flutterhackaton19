@@ -1,24 +1,41 @@
-import 'package:emo_chat/main.dart';
-import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:emo_chat/main.dart';
+import 'package:emo_chat/models/message.dart';
+import 'package:emo_chat/models/user.dart';
+import 'package:emo_chat/providers/message_notifier.dart';
+import 'package:emo_chat/providers/user_notifier.dart';
+import 'package:emo_chat/utils/hash_utils.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
+  final User peerUser;
+
   @override
-  _ChatPageState createState() => _ChatPageState();
+  _ChatPageState createState() => _ChatPageState(this.peerUser);
+
+  ChatPage(this.peerUser);
 }
 
 class _ChatPageState extends State<ChatPage> {
   CameraController cameraController = CameraController(cameras[1], ResolutionPreset.medium);
   bool isAnalyzing = false;
-
+  User peerUser;
+  final messageInputController = new TextEditingController();
   String text = "text";
+
+  double _smilePercent;
+
+  double _leftEyeOpenPercent;
+
+  double _rightEyeOpenPercent;
+
+  _ChatPageState(this.peerUser);
 
   @override
   void initState() {
     super.initState();
-
     cameraController.initialize().then((_) {
       setState(() {});
       cameraController.startImageStream((image) {
@@ -47,14 +64,15 @@ class _ChatPageState extends State<ChatPage> {
               children: <Widget>[
                 Expanded(
                   child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Type message",
-                  ),
+                    controller: messageInputController,
+                    decoration: InputDecoration(
+                      hintText: "Type message",
+                    ),
                   ),
                 ),
                 FlatButton(
                   child: Text("Send"),
-                  onPressed: () => {},
+                  onPressed: _sendMessage,
                 )
               ],
             )
@@ -65,35 +83,31 @@ class _ChatPageState extends State<ChatPage> {
   int getItemsCount() => 200;
 
   Container _getItem(BuildContext context, int index) {
-    if (index % 2 == 0)
-      return _getParentMessage(context, "Rudy Nowak", "elo makrelo");
+    if (index % 2 == 0) return _getParentMessage(context, "Rudy Nowak", "elo makrelo");
 
     return _getMessage(context, "Niebieski Nowak", "elo makrelo");
   }
 
-  Container _getParentMessage(
-          BuildContext context, String _name, String text) =>
-      Container(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-          child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _getNameText(_name, context),
-                    new Container(
-                      margin: const EdgeInsets.only(top: 5.0),
-                      child: new Text(text,
-                          style: TextStyle(color: Colors.black54)),
-                    )
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Color(0x99FFFBE9E7),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              )));
+  Container _getParentMessage(BuildContext context, String _name, String text) => Container(
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child: Container(
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _getNameText(_name, context),
+                new Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: new Text(text, style: TextStyle(color: Colors.black54)),
+                )
+              ],
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Color(0x99FFFBE9E7),
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          )));
 
   Text _getNameText(String _name, BuildContext context) => Text(_name,
       style: TextStyle(
@@ -101,27 +115,37 @@ class _ChatPageState extends State<ChatPage> {
         fontWeight: FontWeight.bold,
       ));
 
-  Container _getMessage(BuildContext context, String _name, String text) =>
-      Container(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-          child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _getNameText(_name, context),
-                    new Container(
-                      margin: const EdgeInsets.only(top: 5.0),
-                      child: new Text(text),
-                    )
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Color(0x99FFBBDEFB),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              )));
+  void  _sendMessage() async {
+    var currentUser = Provider.of<UserState>(context).user;
+
+    var message = messageInputController.text;
+    var chatId = getChatId(currentUser, peerUser);
+    var messageContent = Message(currentUser, peerUser, message,  chatId, this._smilePercent, false);
+
+    await Provider.of<MessageState>(context).sendMessage(messageContent);
+
+  }
+
+  Container _getMessage(BuildContext context, String _name, String text) => Container(
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child: Container(
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _getNameText(_name, context),
+                new Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: new Text(text),
+                )
+              ],
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Color(0x99FFBBDEFB),
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          )));
 
   AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
@@ -146,9 +170,7 @@ class _ChatPageState extends State<ChatPage> {
 
     debugPrint(visionText.text);
     isAnalyzing = false;
-    setState(() {
-      text = visionText.text;
-    });
+    messageInputController.text = visionText.text;
   }
 
   Future scanForFace(CameraImage image) async {
@@ -166,7 +188,7 @@ class _ChatPageState extends State<ChatPage> {
     final FaceDetector faceRecognizer = FirebaseVision.instance.faceDetector(options);
     final List<Face> faces = await faceRecognizer.processImage(visionImage);
 
-    if(faces.isEmpty) {
+    if (faces.isEmpty) {
       isAnalyzing = false;
       return;
     }
@@ -178,8 +200,12 @@ class _ChatPageState extends State<ChatPage> {
 
     debugPrint("smile prob: $smilePercent, leftEyeProb: $leftEyeOpenPercent, rightEyeProb: $rightEyeOpenPercent");
     isAnalyzing = false;
+
+    this._smilePercent = smilePercent;
+    this._leftEyeOpenPercent = leftEyeOpenPercent;
+    this._rightEyeOpenPercent = rightEyeOpenPercent;
     setState(() {
-//      text = visionText.text;
+      //            text = visionText.text;
     });
   }
 
