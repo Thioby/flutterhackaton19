@@ -2,12 +2,11 @@ import 'package:emo_chat/widgets/circle_image.dart';
 import 'package:flutter/material.dart';
 
 class UserRow extends StatelessWidget {
-
   String name;
   String imageUrl;
+  Function() onClick;
 
-
-  UserRow(this.name, this.imageUrl);
+  UserRow(this.name, this.imageUrl, this.onClick);
 
   @override
   Widget build(BuildContext context) {
@@ -17,13 +16,16 @@ class UserRow extends StatelessWidget {
   Widget _buildRow(BuildContext context) {
     return Material(
       type: MaterialType.transparency,
-      child: Container(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            _parishRow(context),
-          ],
+      child: InkWell(
+        onTap: this.onClick,
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              _parishRow(context),
+            ],
+          ),
         ),
       ),
     );
@@ -61,7 +63,8 @@ class UserRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 39),
           child: Container(
             height: 120,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: _borderRadius()),
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: _borderRadius()),
           ),
         ),
       ],
