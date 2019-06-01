@@ -91,7 +91,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       FlatButton(
                         child: Text("Send"),
-                        onPressed: () => {},
+                        onPressed: _sendMessage,
                       )
                     ],
                   ),
