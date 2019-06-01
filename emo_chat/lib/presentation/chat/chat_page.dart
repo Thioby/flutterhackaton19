@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:emo_chat/main.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:flutter/material.dart';
@@ -34,51 +35,68 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: _appBar(context),
-        body: Stack(
-          children: <Widget>[
-            OnboardingBackground(),
-            Column(
+        body: StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance
+              .collection('messages')
+              .document(groupChatId)
+              .collection(groupChatId)
+              .orderBy('timestamp', descending: true)
+              .limit(20)
+              .snapshots(),
+          builder:
+              (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+            return Stack(
               children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    reverse: true,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (context, index) => _getItem(context, index),
-                    itemCount: getItemsCount(),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        offset: Offset(0, -7),
-                        blurRadius: 10,
-                        spreadRadius: -15,
-                        color: Colors.black26,
-                      )
-                    ],
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: "Type message",
-                          ),
-                        ),
+                OnboardingBackground(),
+                Column(
+                  children: <Widget>[
+                    Expanded(
+                      child: ListView.builder(
+                        reverse: true,
+                        scrollDirection: Axis.vertical,
+                        itemBuilder: (context, index) =>
+                            _getItem(context, index),
+                        itemCount: getItemsCount(),
                       ),
-                      FlatButton(
-                        child: Text("Send"),
-                        onPressed: () => {},
-                      )
-                    ],
-                  ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        boxShadow: [
+                          BoxShadow(
+                            offset: Offset(0, -7),
+                            blurRadius: 10,
+                            spreadRadius: -15,
+                            color: Colors.black26,
+                          )
+                        ],
+                        color: Colors.white,
+                      ),
+                      child: _getInput(),
+                    )
+                  ],
                 )
               ],
-            )
-          ],
+            );
+          },
         ));
+  }
+
+  Row _getInput() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: "Type message",
+            ),
+          ),
+        ),
+        FlatButton(
+          child: Text("Send"),
+          onPressed: () => {},
+        )
+      ],
+    );
   }
 
   int getItemsCount() => 200;
