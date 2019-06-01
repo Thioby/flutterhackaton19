@@ -53,8 +53,14 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
-#  assets:
-#    - images/logo.svg
+  assets:
+    - images/ic_crying.png
+    - images/ic_gringing.png
+    - images/ic_pensive.png
+    - images/ic_slightly_smiling.png
+
+  #  assets:
+  #    - images/logo.svg
 
   # To add assets to your application, add an assets section, like this:
   # assets:
