@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -9,17 +10,32 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _appBar(context),
-      body: Container(
-        child: ListView.builder(
-//        key: categoriesKey,
-          reverse: true,
-          scrollDirection: Axis.vertical,
-          itemBuilder: (context, index) => _getItem(context, index),
-          itemCount: getItemsCount(),
-        ),
-      ),
-    );
+        appBar: _appBar(context),
+        body: Column(
+          children: <Widget>[
+            Expanded(
+              child: ListView.builder(
+                reverse: true,
+                scrollDirection: Axis.vertical,
+                itemBuilder: (context, index) => _getItem(context, index),
+                itemCount: getItemsCount(),
+              ),
+            ),
+            Row(
+              children: <Widget>[
+                TextField(
+                  decoration: InputDecoration(
+                    hintText: "Type message",
+                  ),
+                ),
+                FlatButton(
+                  child: Text("Send"),
+                  onPressed: () => {},
+                )
+              ],
+            )
+          ],
+        ));
   }
 
   int getItemsCount() => 200;
