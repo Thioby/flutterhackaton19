@@ -22,8 +22,7 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  CameraController cameraController =
-      CameraController(cameras[1], ResolutionPreset.medium);
+  CameraController cameraController = CameraController(cameras[1], ResolutionPreset.medium);
   bool isAnalyzing = false;
   User peerUser;
   final messageInputController = new TextEditingController();
@@ -110,30 +109,27 @@ class _ChatPageState extends State<ChatPage> {
     return _getMessage(context, "Niebieski Nowak", "elo makrelo");
   }
 
-  Container _getParentMessage(
-          BuildContext context, String _name, String text) =>
-      Container(
-          decoration: _getMessageBoxDecoration(),
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-          child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _getNameText(_name, context),
-                    new Container(
-                      margin: const EdgeInsets.only(top: 5.0),
-                      child: new Text(text,
-                          style: TextStyle(color: Colors.black54)),
-                    )
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Color(0x99FFFBE9E7),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              )));
+  Container _getParentMessage(BuildContext context, String _name, String text) => Container(
+      decoration: _getMessageBoxDecoration(),
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child: Container(
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _getNameText(_name, context),
+                new Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: new Text(text, style: TextStyle(color: Colors.black54)),
+                )
+              ],
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Color(0x99FFFBE9E7),
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          )));
 
   Text _getNameText(String _name, BuildContext context) => Text(_name,
       style: TextStyle(
@@ -141,38 +137,36 @@ class _ChatPageState extends State<ChatPage> {
         fontWeight: FontWeight.bold,
       ));
 
-  Container _getMessage(BuildContext context, String _name, String text) =>
-      Container(
-          decoration: _getMessageBoxDecoration(),
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
-          child: Container(
-              child: Padding(
-                padding: EdgeInsets.all(10),
-                child: new Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    _getNameText(_name, context),
-                    new Container(
-                      margin: const EdgeInsets.only(top: 5.0),
-                      child: new Text(text),
-                    )
-                  ],
-                ),
-              ),
-              decoration: BoxDecoration(
-                color: Color(0x99FFBBDEFB),
-                borderRadius: BorderRadius.all(Radius.circular(10.0)),
-              )));
+  Container _getMessage(BuildContext context, String _name, String text) => Container(
+      decoration: _getMessageBoxDecoration(),
+      padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+      child: Container(
+          child: Padding(
+            padding: EdgeInsets.all(10),
+            child: new Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                _getNameText(_name, context),
+                new Container(
+                  margin: const EdgeInsets.only(top: 5.0),
+                  child: new Text(text),
+                )
+              ],
+            ),
+          ),
+          decoration: BoxDecoration(
+            color: Color(0x99FFBBDEFB),
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          )));
 
-  void  _sendMessage() async {
+  void _sendMessage() async {
     var currentUser = Provider.of<UserState>(context).user;
 
     var message = messageInputController.text;
     var chatId = getChatId(currentUser, peerUser);
-    var messageContent = Message(currentUser, peerUser, message,  chatId, this._smilePercent, false);
+    var messageContent = Message(currentUser, peerUser, message, chatId, this._smilePercent, false);
 
     await Provider.of<MessageState>(context).sendMessage(messageContent);
-
   }
 
   BoxDecoration _getMessageBoxDecoration() {
@@ -200,17 +194,12 @@ class _ChatPageState extends State<ChatPage> {
         size: Size(image.width.toDouble(), image.height.toDouble()),
         planeData: image.planes
             .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
-                bytesPerRow: currentPlane.bytesPerRow,
-                height: currentPlane.height,
-                width: currentPlane.width))
+                bytesPerRow: currentPlane.bytesPerRow, height: currentPlane.height, width: currentPlane.width))
             .toList(),
         rotation: ImageRotation.rotation90);
-    final FirebaseVisionImage visionImage =
-        FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
-    final TextRecognizer textRecognizer =
-        FirebaseVision.instance.textRecognizer();
-    final VisionText visionText =
-        await textRecognizer.processImage(visionImage);
+    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
+    final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
+    final VisionText visionText = await textRecognizer.processImage(visionImage);
 
     debugPrint(visionText.text);
     isAnalyzing = false;
@@ -224,17 +213,12 @@ class _ChatPageState extends State<ChatPage> {
         size: Size(image.width.toDouble(), image.height.toDouble()),
         planeData: image.planes
             .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
-                bytesPerRow: currentPlane.bytesPerRow,
-                height: currentPlane.height,
-                width: currentPlane.width))
+                bytesPerRow: currentPlane.bytesPerRow, height: currentPlane.height, width: currentPlane.width))
             .toList(),
         rotation: ImageRotation.rotation270);
-    final FirebaseVisionImage visionImage =
-        FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
-    final FaceDetectorOptions options =
-        FaceDetectorOptions(enableClassification: true);
-    final FaceDetector faceRecognizer =
-        FirebaseVision.instance.faceDetector(options);
+    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
+    final FaceDetectorOptions options = FaceDetectorOptions(enableClassification: true);
+    final FaceDetector faceRecognizer = FirebaseVision.instance.faceDetector(options);
     final List<Face> faces = await faceRecognizer.processImage(visionImage);
 
     if (faces.isEmpty) {
@@ -247,17 +231,25 @@ class _ChatPageState extends State<ChatPage> {
     var leftEyeOpenPercent = firstFace.leftEyeOpenProbability;
     var rightEyeOpenPercent = firstFace.rightEyeOpenProbability;
 
-    debugPrint(
-        "smile prob: $smilePercent, leftEyeProb: $leftEyeOpenPercent, rightEyeProb: $rightEyeOpenPercent");
+    debugPrint("smile prob: $smilePercent, leftEyeProb: $leftEyeOpenPercent, rightEyeProb: $rightEyeOpenPercent");
     isAnalyzing = false;
 
     this._smilePercent = smilePercent;
     this._leftEyeOpenPercent = leftEyeOpenPercent;
     this._rightEyeOpenPercent = rightEyeOpenPercent;
+
+    if (_isOnlyRightEyeOpen() || _isOnlyLeftEyeOpen()) {
+      debugPrint("oczko");
+    }
+
     setState(() {
       //            text = visionText.text;
     });
   }
+
+  bool _isOnlyRightEyeOpen() => _leftEyeOpenPercent > 0.5 && _rightEyeOpenPercent < 0.5;
+
+  bool _isOnlyLeftEyeOpen() => _leftEyeOpenPercent < 0.5 && _rightEyeOpenPercent > 0.5;
 
   @override
   void dispose() {
