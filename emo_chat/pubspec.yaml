@@ -33,6 +33,7 @@ dependencies:
   provider: ^2.0.1+1
   camera: ^0.5.2+1
   firebase_ml_vision: ^0.8.0+2
+  animated_card_switcher: ^1.0.0
 
 dev_dependencies:
   flutter_test:

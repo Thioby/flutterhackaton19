@@ -7,38 +7,72 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:provider/provider.dart';
+import 'package:animated_card_switcher/animated_card_switcher.dart';
 
-class OnboardingPage extends StatelessWidget {
+import 'about_card.dart';
+import 'login_card.dart';
+
+class OnboardingPage extends StatefulWidget {
+  @override
+  _OnboardingPageState createState() => _OnboardingPageState();
+}
+
+class _OnboardingPageState extends State<OnboardingPage> {
+  bool _loginFirst = true;
+
   @override
   Widget build(BuildContext context) {
+    var textStyle = TextStyle(
+      fontSize: 64,
+      color: Colors.white,
+      shadows: [
+        BoxShadow(
+          color: Colors.deepOrange,
+          blurRadius: 10,
+        )
+      ],
+    );
+
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: Stack(children: [
         OnboardingBackground(),
-        Center(
-          child: RaisedButton(
-            onPressed: () {
-              loginGoogle(context);
-            },
-            child: Text("Login with google"),
-          ),
-        )
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            Column(
+              children: <Widget>[
+                Transform.rotate(angle: -12, child: Text("Face", style: textStyle)),
+                Text("2", style: textStyle.copyWith(shadows: [
+                  BoxShadow(
+                    color: Colors.white,
+                    blurRadius: 10,
+                  )
+                ])),
+                Transform.rotate(angle: 12, child: Text("Face", style: textStyle)),
+              ],
+            ),
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32.0),
+                child: AnimatedCardSwitcher(
+                  firstChild: LoginCard(() {
+                    setState(() {
+                      _loginFirst = !_loginFirst;
+                    });
+                  }),
+                  secondChild: AboutCard(() {
+                    setState(() {
+                      _loginFirst = !_loginFirst;
+                    });
+                  }),
+                  state: _loginFirst ? CardSwitcherState.showFirst : CardSwitcherState.showSecond,
+                ),
+              ),
+            ),
+          ],
+        ),
       ]),
     );
-  }
-
-  void loginGoogle(BuildContext context) async {
-    final GoogleSignIn googleSignIn = new GoogleSignIn();
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-
-    GoogleSignInAccount googleUser = await googleSignIn.signIn();
-    GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
-
-    FirebaseUser firebaseUser = await firebaseAuth.signInWithCredential(credential);
-    await Provider.of<UserState>(context).setUser(firebaseUser);
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => UsersPage()));
   }
 }
