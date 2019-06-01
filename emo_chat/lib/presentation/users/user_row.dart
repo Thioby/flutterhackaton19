@@ -2,10 +2,8 @@ import 'package:emo_chat/widgets/circle_image.dart';
 import 'package:flutter/material.dart';
 
 class UserRow extends StatelessWidget {
-
   String name;
   String imageUrl;
-
 
   UserRow(this.name, this.imageUrl);
 
@@ -61,7 +59,11 @@ class UserRow extends StatelessWidget {
           padding: const EdgeInsets.only(left: 39),
           child: Container(
             height: 120,
-            decoration: BoxDecoration(color: Colors.white, borderRadius: _borderRadius()),
+            decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: _borderRadius(),
+                boxShadow: [BoxShadow(offset: Offset(0, 12), blurRadius: 10, spreadRadius: -15)],
+                border: Border.all(color: Colors.deepOrange, width: 2)),
           ),
         ),
       ],
