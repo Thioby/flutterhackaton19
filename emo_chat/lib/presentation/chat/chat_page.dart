@@ -1,8 +1,8 @@
 import 'package:emo_chat/main.dart';
+import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
-import 'package:flutter/services.dart';
 
 class ChatPage extends StatefulWidget {
   @override
@@ -10,7 +10,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  CameraController cameraController = CameraController(cameras[1], ResolutionPreset.medium);
+  CameraController cameraController =
+      CameraController(cameras[1], ResolutionPreset.medium);
   bool isAnalyzing = false;
 
   String text = "text";
@@ -33,28 +34,46 @@ class _ChatPageState extends State<ChatPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: _appBar(context),
-        body: Column(
+        body: Stack(
           children: <Widget>[
-            Expanded(
-              child: ListView.builder(
-                reverse: true,
-                scrollDirection: Axis.vertical,
-                itemBuilder: (context, index) => _getItem(context, index),
-                itemCount: getItemsCount(),
-              ),
-            ),
-            Row(
+            OnboardingBackground(),
+            Column(
               children: <Widget>[
                 Expanded(
-                  child: TextField(
-                  decoration: InputDecoration(
-                    hintText: "Type message",
-                  ),
+                  child: ListView.builder(
+                    reverse: true,
+                    scrollDirection: Axis.vertical,
+                    itemBuilder: (context, index) => _getItem(context, index),
+                    itemCount: getItemsCount(),
                   ),
                 ),
-                FlatButton(
-                  child: Text("Send"),
-                  onPressed: () => {},
+                Container(
+                  decoration: BoxDecoration(
+                    boxShadow: [
+                      BoxShadow(
+                        offset: Offset(0, -7),
+                        blurRadius: 10,
+                        spreadRadius: -15,
+                        color: Colors.black26,
+                      )
+                    ],
+                    color: Colors.white,
+                  ),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: "Type message",
+                          ),
+                        ),
+                      ),
+                      FlatButton(
+                        child: Text("Send"),
+                        onPressed: () => {},
+                      )
+                    ],
+                  ),
                 )
               ],
             )
@@ -74,6 +93,7 @@ class _ChatPageState extends State<ChatPage> {
   Container _getParentMessage(
           BuildContext context, String _name, String text) =>
       Container(
+          decoration: _getMessageBoxDecoration(),
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
           child: Container(
               child: Padding(
@@ -103,6 +123,7 @@ class _ChatPageState extends State<ChatPage> {
 
   Container _getMessage(BuildContext context, String _name, String text) =>
       Container(
+          decoration: _getMessageBoxDecoration(),
           padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
           child: Container(
               child: Padding(
@@ -123,6 +144,17 @@ class _ChatPageState extends State<ChatPage> {
                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
               )));
 
+  BoxDecoration _getMessageBoxDecoration() {
+    return BoxDecoration(boxShadow: [
+      BoxShadow(
+        offset: Offset(0, 2),
+        blurRadius: 10,
+        spreadRadius: -15,
+        color: Colors.black26,
+      )
+    ]);
+  }
+
   AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
         title: Text("Chat"),
@@ -137,12 +169,17 @@ class _ChatPageState extends State<ChatPage> {
         size: Size(image.width.toDouble(), image.height.toDouble()),
         planeData: image.planes
             .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
-                bytesPerRow: currentPlane.bytesPerRow, height: currentPlane.height, width: currentPlane.width))
+                bytesPerRow: currentPlane.bytesPerRow,
+                height: currentPlane.height,
+                width: currentPlane.width))
             .toList(),
         rotation: ImageRotation.rotation90);
-    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
-    final TextRecognizer textRecognizer = FirebaseVision.instance.textRecognizer();
-    final VisionText visionText = await textRecognizer.processImage(visionImage);
+    final FirebaseVisionImage visionImage =
+        FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
+    final TextRecognizer textRecognizer =
+        FirebaseVision.instance.textRecognizer();
+    final VisionText visionText =
+        await textRecognizer.processImage(visionImage);
 
     debugPrint(visionText.text);
     isAnalyzing = false;
@@ -158,15 +195,20 @@ class _ChatPageState extends State<ChatPage> {
         size: Size(image.width.toDouble(), image.height.toDouble()),
         planeData: image.planes
             .map((currentPlane) => FirebaseVisionImagePlaneMetadata(
-                bytesPerRow: currentPlane.bytesPerRow, height: currentPlane.height, width: currentPlane.width))
+                bytesPerRow: currentPlane.bytesPerRow,
+                height: currentPlane.height,
+                width: currentPlane.width))
             .toList(),
         rotation: ImageRotation.rotation270);
-    final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
-    final FaceDetectorOptions options = FaceDetectorOptions(enableClassification: true);
-    final FaceDetector faceRecognizer = FirebaseVision.instance.faceDetector(options);
+    final FirebaseVisionImage visionImage =
+        FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
+    final FaceDetectorOptions options =
+        FaceDetectorOptions(enableClassification: true);
+    final FaceDetector faceRecognizer =
+        FirebaseVision.instance.faceDetector(options);
     final List<Face> faces = await faceRecognizer.processImage(visionImage);
 
-    if(faces.isEmpty) {
+    if (faces.isEmpty) {
       isAnalyzing = false;
       return;
     }
@@ -176,7 +218,8 @@ class _ChatPageState extends State<ChatPage> {
     var leftEyeOpenPercent = firstFace.leftEyeOpenProbability;
     var rightEyeOpenPercent = firstFace.rightEyeOpenProbability;
 
-    debugPrint("smile prob: $smilePercent, leftEyeProb: $leftEyeOpenPercent, rightEyeProb: $rightEyeOpenPercent");
+    debugPrint(
+        "smile prob: $smilePercent, leftEyeProb: $leftEyeOpenPercent, rightEyeProb: $rightEyeOpenPercent");
     isAnalyzing = false;
     setState(() {
 //      text = visionText.text;
