@@ -1,4 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:emo_chat/infrastructure/firebase_message_mapper.dart';
+import 'package:emo_chat/main.dart';
+import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
+import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:emo_chat/models/message.dart';
+import 'package:emo_chat/models/user.dart';
+import 'package:emo_chat/providers/message_notifier.dart';
+import 'package:emo_chat/providers/user_notifier.dart';
+import 'package:emo_chat/utils/hash_utils.dart';
+import 'package:emo_chat/main.dart';
 import 'package:emo_chat/models/message.dart';
 import 'package:emo_chat/models/user.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
@@ -6,6 +17,7 @@ import 'package:emo_chat/providers/message_notifier.dart';
 import 'package:emo_chat/providers/user_notifier.dart';
 import 'package:emo_chat/utils/hash_utils.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -21,10 +33,12 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  CameraController cameraController = CameraController(caeras[1], ResolutionPreset.medium);
-  bool isAnalyzing = false;
-  User peerUser;
+  final messageMapper = FirebaseMessageMapper();
   final messageInputController = new TextEditingController();
+  final listScrollController = new ScrollController();
+  User peerUser;
+  CameraController cameraController = CameraController(cameras[1], ResolutionPreset.medium);
+  bool isAnalyzing = false;
   String text = "text";
   DateTime lastEyeDate = DateTime.now();
 
@@ -51,62 +65,96 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    var chatId =  getChatId(Provider.of<UserState>(context).user, peerUser);
     return Scaffold(
         appBar: _appBar(context),
-        body: Stack(
+        body: StreamBuilder<QuerySnapshot>(
+          stream: Firestore.instance
+              .collection('messages')
+              .document(chatId)
+              .collection(chatId)
+              .orderBy('timestamp', descending: true)
+              .limit(20)
+              .snapshots(),
+          builder: _build,
+        ));
+  }
+
+
+  Widget _build(BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+    Widget body = Container();
+
+    if(snapshot.data != null){
+      body = ListView.builder(
+        scrollDirection: Axis.vertical,
+        itemBuilder: (context, index) => _getItem(context, index, snapshot.data.documents[index]),
+        itemCount: snapshot.data.documents.length,
+        reverse: true,
+        controller: listScrollController,
+      );
+    }
+
+    return Stack(
+      children: <Widget>[
+        OnboardingBackground(),
+        Column(
           children: <Widget>[
-            OnboardingBackground(),
-            Column(
-              children: <Widget>[
-                Expanded(
-                  child: ListView.builder(
-                    reverse: true,
-                    scrollDirection: Axis.vertical,
-                    itemBuilder: (context, index) => _getItem(context, index),
-                    itemCount: getItemsCount(),
-                  ),
-                ),
-                Container(
-                  decoration: BoxDecoration(
-                    boxShadow: [
-                      BoxShadow(
-                        offset: Offset(0, -7),
-                        blurRadius: 10,
-                        spreadRadius: -15,
-                        color: Colors.black26,
-                      )
-                    ],
-                    color: Colors.white,
-                  ),
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: TextField(
-                          controller: messageInputController,
-                          decoration: InputDecoration(
-                            hintText: "Type message",
-                          ),
-                        ),
-                      ),
-                      FlatButton(
-                        child: Text("Send"),
-                        onPressed: _sendMessage,
-                      )
-                    ],
-                  ),
-                )
-              ],
+            Expanded(
+              child: body,
+            ),
+            Container(
+              decoration: BoxDecoration(
+                boxShadow: [
+                  BoxShadow(
+                    offset: Offset(0, -7),
+                    blurRadius: 10,
+                    spreadRadius: -15,
+                    color: Colors.black26,
+                  )
+                ],
+                color: Colors.white,
+              ),
+              child: _getInput(),
             )
           ],
-        ));
+
+        )
+      ],
+    );
+  }
+
+
+  Row _getInput() {
+    return Row(
+      children: <Widget>[
+        Expanded(
+          child: TextField(
+            controller: messageInputController,
+            decoration: InputDecoration(
+              hintText: "Type message",
+            ),
+          ),
+        ),
+        FlatButton(
+          child: Text("Send"),
+          onPressed: _sendMessage,
+        )
+      ],
+    );
   }
 
   int getItemsCount() => 200;
 
-  Container _getItem(BuildContext context, int index) {
-    if (index % 2 == 0) return _getParentMessage(context, "Rudy Nowak", "elo makrelo");
+  Container _getItem(BuildContext context, int index, dynamic data) {
+    if(data == null) return Container();
+    if(data.data == null) return Container();
 
-    return _getMessage(context, "Niebieski Nowak", "elo makrelo", 5);
+    Message message = messageMapper.mapMessage(data.data);
+    User currentUser = Provider.of<UserState>(context).user;
+    if (currentUser.id == message.from)
+      return _getParentMessage(context, currentUser.name, message.content);
+
+    return _getMessage(context, peerUser.name, message.content, message.hapiness);
   }
 
   Container _getParentMessage(BuildContext context, String _name, String text) => Container(
@@ -162,11 +210,11 @@ class _ChatPageState extends State<ChatPage> {
   Image _getEmoti(double happiness) {
     var emoti = "images/ic_crying.png";
 
-    if (happiness > 0.3) emoti = "images/ic_pensive.png";
+    if (happiness > 0.2) emoti = "images/ic_pensive.png";
 
-    if (happiness > 0.5) emoti = "images/ic_slightly_smiling.png";
+    if (happiness > 0.6) emoti = "images/ic_slightly_smiling.png";
 
-    if (happiness > 0.7) emoti = "images/ic_gringing.png";
+    if (happiness > 0.72) emoti = "images/ic_gringing.png";
 
     return Image.asset(
       emoti,
@@ -187,9 +235,11 @@ class _ChatPageState extends State<ChatPage> {
 
     var message = messageInputController.text;
     var chatId = getChatId(currentUser, peerUser);
-    var messageContent = Message(currentUser, peerUser, message, chatId, this._smilePercent, false);
+    var messageContent = Message(
+        currentUser.id, peerUser.id, message, this._smilePercent, false);
 
-    await Provider.of<MessageState>(context).sendMessage(messageContent);
+    await Provider.of<MessageState>(context).sendMessage(messageContent, chatId);
+    messageInputController.clear();
   }
 
   BoxDecoration _getMessageBoxDecoration() {

@@ -3,21 +3,21 @@ import 'package:emo_chat/models/message.dart';
 import 'package:flutter/foundation.dart';
 
 class MessageState with ChangeNotifier {
-  void sendMessage(Message content) async {
+  void sendMessage(Message content, String chatId) async {
     String messageContent = content.content;
     if (messageContent.trim() != '') {
       var documentReference = Firestore.instance
           .collection('messages')
-          .document(content.chatId)
-          .collection(content.chatId)
+          .document(chatId)
+          .collection(chatId)
           .document(DateTime.now().millisecondsSinceEpoch.toString());
 
       Firestore.instance.runTransaction((transaction) async {
         await transaction.set(
           documentReference,
           {
-            'idFrom': content.from.id,
-            'idTo': content.to.id,
+            'idFrom': content.from,
+            'idTo': content.to,
             'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
             'content': messageContent,
             'isEye': content.isEye,
