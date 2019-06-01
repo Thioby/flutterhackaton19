@@ -1,3 +1,4 @@
+import 'package:emo_chat/presentation/chat/chat_page.dart';
 import 'package:emo_chat/presentation/home/home_page.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:emo_chat/providers/user_notifier.dart';

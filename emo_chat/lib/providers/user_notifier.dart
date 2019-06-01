@@ -1,11 +1,11 @@
 import 'package:emo_chat/models/user.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserState with ChangeNotifier {
   User _user;
+  User get user => _user;
 
   void setUser(FirebaseUser firebaseUser) async {
     if (firebaseUser != null) {
