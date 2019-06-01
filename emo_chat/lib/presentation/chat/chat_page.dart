@@ -45,9 +45,11 @@ class _ChatPageState extends State<ChatPage> {
             ),
             Row(
               children: <Widget>[
-                TextField(
+                Expanded(
+                  child: TextField(
                   decoration: InputDecoration(
                     hintText: "Type message",
+                  ),
                   ),
                 ),
                 FlatButton(
@@ -179,5 +181,11 @@ class _ChatPageState extends State<ChatPage> {
     setState(() {
 //      text = visionText.text;
     });
+  }
+
+  @override
+  void dispose() {
+    cameraController.dispose();
+    super.dispose();
   }
 }
