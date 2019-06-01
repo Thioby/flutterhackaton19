@@ -56,7 +56,12 @@ class HomePage extends StatelessWidget {
 
   AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
-        title: Text("Users"),
+        title: Text(
+          "Face2Face",
+          style: TextStyle(color: Colors.deepOrange, shadows: [
+            BoxShadow(color: Colors.white, blurRadius: 10),
+          ]),
+        ),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepOrange,
       );

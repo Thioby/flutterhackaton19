@@ -40,7 +40,13 @@ class UsersPage extends StatelessWidget {
 
   AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
-        title: Text("Users"),
+        title: Text(
+          "Face2Face",
+          style: TextStyle(color: Colors.white, shadows: [
+            BoxShadow(color: Colors.blue, blurRadius: 10),
+          ],
+          fontSize: 28),
+        ),
         automaticallyImplyLeading: false,
         backgroundColor: Colors.deepOrange,
       );
