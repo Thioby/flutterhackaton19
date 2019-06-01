@@ -2,24 +2,44 @@ import 'package:emo_chat/main.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:emo_chat/main.dart';
+import 'package:emo_chat/models/message.dart';
+import 'package:emo_chat/models/user.dart';
+import 'package:emo_chat/providers/message_notifier.dart';
+import 'package:emo_chat/providers/user_notifier.dart';
+import 'package:emo_chat/utils/hash_utils.dart';
 import 'package:firebase_ml_vision/firebase_ml_vision.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
+  final User peerUser;
+
   @override
-  _ChatPageState createState() => _ChatPageState();
+  _ChatPageState createState() => _ChatPageState(this.peerUser);
+
+  ChatPage(this.peerUser);
 }
 
 class _ChatPageState extends State<ChatPage> {
   CameraController cameraController =
       CameraController(cameras[1], ResolutionPreset.medium);
   bool isAnalyzing = false;
-
+  User peerUser;
+  final messageInputController = new TextEditingController();
   String text = "text";
+
+  double _smilePercent;
+
+  double _leftEyeOpenPercent;
+
+  double _rightEyeOpenPercent;
+
+  _ChatPageState(this.peerUser);
 
   @override
   void initState() {
     super.initState();
-
     cameraController.initialize().then((_) {
       setState(() {});
       cameraController.startImageStream((image) {
@@ -63,6 +83,7 @@ class _ChatPageState extends State<ChatPage> {
                     children: <Widget>[
                       Expanded(
                         child: TextField(
+                          controller: messageInputController,
                           decoration: InputDecoration(
                             hintText: "Type message",
                           ),
@@ -84,8 +105,7 @@ class _ChatPageState extends State<ChatPage> {
   int getItemsCount() => 200;
 
   Container _getItem(BuildContext context, int index) {
-    if (index % 2 == 0)
-      return _getParentMessage(context, "Rudy Nowak", "elo makrelo");
+    if (index % 2 == 0) return _getParentMessage(context, "Rudy Nowak", "elo makrelo");
 
     return _getMessage(context, "Niebieski Nowak", "elo makrelo");
   }
@@ -144,6 +164,17 @@ class _ChatPageState extends State<ChatPage> {
                 borderRadius: BorderRadius.all(Radius.circular(10.0)),
               )));
 
+  void  _sendMessage() async {
+    var currentUser = Provider.of<UserState>(context).user;
+
+    var message = messageInputController.text;
+    var chatId = getChatId(currentUser, peerUser);
+    var messageContent = Message(currentUser, peerUser, message,  chatId, this._smilePercent, false);
+
+    await Provider.of<MessageState>(context).sendMessage(messageContent);
+
+  }
+
   BoxDecoration _getMessageBoxDecoration() {
     return BoxDecoration(boxShadow: [
       BoxShadow(
@@ -183,9 +214,7 @@ class _ChatPageState extends State<ChatPage> {
 
     debugPrint(visionText.text);
     isAnalyzing = false;
-    setState(() {
-      text = visionText.text;
-    });
+    messageInputController.text = visionText.text;
   }
 
   Future scanForFace(CameraImage image) async {
@@ -221,8 +250,12 @@ class _ChatPageState extends State<ChatPage> {
     debugPrint(
         "smile prob: $smilePercent, leftEyeProb: $leftEyeOpenPercent, rightEyeProb: $rightEyeOpenPercent");
     isAnalyzing = false;
+
+    this._smilePercent = smilePercent;
+    this._leftEyeOpenPercent = leftEyeOpenPercent;
+    this._rightEyeOpenPercent = rightEyeOpenPercent;
     setState(() {
-//      text = visionText.text;
+      //            text = visionText.text;
     });
   }
 
