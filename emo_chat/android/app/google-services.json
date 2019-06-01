@@ -44,6 +44,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "567030860452-13bt404ljhhjhcqj22274reavq1aam7d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "hackaton.flutter.emo_chat",
+            "certificate_hash": "0c9805da736c07bc812025b56f8811188b605285"
+          }
+        },
+        {
           "client_id": "567030860452-kfcu8soh3haf4v26b6i42on88m8ma9sd.apps.googleusercontent.com",
           "client_type": 3
         }
