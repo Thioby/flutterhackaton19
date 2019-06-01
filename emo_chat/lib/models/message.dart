@@ -1,8 +1,13 @@
-class Message {
-  final String id;
-  final String fromUserId;
-  final String toUserId;
-  final String message;
+import 'package:emo_chat/models/user.dart';
 
-  Message({this.id, this.fromUserId, this.toUserId, this.message});
+class Message {
+  final User from;
+  final User to;
+  final String content;
+  final String chatId;
+  final double hapiness;
+  final bool isEye;
+
+  Message(this.from, this.to, this.content, this.chatId, this.hapiness, this.isEye);
+
 }
