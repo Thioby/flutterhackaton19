@@ -2,8 +2,14 @@ import 'package:emo_chat/presentation/onboarding/onboarding_page.dart';
 import 'package:emo_chat/providers/user_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:camera/camera.dart';
 
-void main() => runApp(MyApp());
+List<CameraDescription> cameras;
+
+void main() async {
+  cameras = await availableCameras();
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
