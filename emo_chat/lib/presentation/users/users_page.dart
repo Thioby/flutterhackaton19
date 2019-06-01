@@ -14,27 +14,30 @@ class UsersPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _appBar(context),
-      body: Container(
-        child: StreamBuilder(
-            stream: Firestore.instance.collection(Tables.USERS).snapshots(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return _buildLoading();
-              }
-              return ListView.separated(
-                padding: EdgeInsets.all(10.0),
-                itemBuilder: (context, index) =>
-                    _buildItem(context, snapshot.data.documents[index]),
-                itemCount: snapshot.data.documents.length,
-                separatorBuilder: _buildSeparator,
-              );
-            }),
+      body: Stack(
+        children: <Widget>[
+          OnboardingBackground(),
+          Container(
+            child: StreamBuilder(
+                stream: Firestore.instance.collection(Tables.USERS).snapshots(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return _buildLoading();
+                  }
+                  return ListView.separated(
+                    padding: EdgeInsets.all(10.0),
+                    itemBuilder: (context, index) => _buildItem(context, snapshot.data.documents[index]),
+                    itemCount: snapshot.data.documents.length,
+                    separatorBuilder: _buildSeparator,
+                  );
+                }),
+          ),
+        ],
       ),
     );
   }
 
-  AppBar _appBar(BuildContext context) =>
-      AppBar(
+  AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
         title: Text("Users"),
         automaticallyImplyLeading: false,
@@ -54,8 +57,7 @@ class UsersPage extends StatelessWidget {
 
   Widget _buildRow(BuildContext context, String name, String url) {
     return UserRow(name, url ?? PLACEHOLDER, () {
-      Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => ChatPage()));
+      Navigator.of(context).push(MaterialPageRoute(builder: (context) => ChatPage()));
     });
   }
 
