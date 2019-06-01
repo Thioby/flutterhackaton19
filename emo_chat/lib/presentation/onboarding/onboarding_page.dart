@@ -1,3 +1,4 @@
+import 'package:emo_chat/presentation/home/home_page.dart';
 import 'package:emo_chat/presentation/onboarding/onboarding_background.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -12,7 +13,7 @@ class OnboardingPage extends StatelessWidget {
         Center(
           child: RaisedButton(
             onPressed: () {
-              loginGoogle();
+              loginGoogle(context);
             },
             child: Text("Login with google"),
           ),
@@ -21,7 +22,7 @@ class OnboardingPage extends StatelessWidget {
     );
   }
 
-  void loginGoogle() async {
+  void loginGoogle(BuildContext context) async {
     final GoogleSignIn googleSignIn = new GoogleSignIn();
     final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
 //    GoogleSignInAccount googleUser = await googleSignIn.signIn();
@@ -38,6 +39,6 @@ class OnboardingPage extends StatelessWidget {
     );
 
     FirebaseUser firebaseUser = await firebaseAuth.signInWithCredential(credential);
-
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => HomePage()));
   }
 }
