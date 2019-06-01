@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 
-class ChatPage extends StatelessWidget {
+class ChatPage extends StatefulWidget {
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -8,17 +13,75 @@ class ChatPage extends StatelessWidget {
       body: Container(
         child: ListView.builder(
 //        key: categoriesKey,
+          reverse: true,
           scrollDirection: Axis.vertical,
-          itemBuilder: (context, index) => _getItem(),
+          itemBuilder: (context, index) => _getItem(context, index),
           itemCount: getItemsCount(),
         ),
       ),
     );
   }
 
-  int getItemsCount() => 0;
+  int getItemsCount() => 200;
 
-  Container _getItem() => Container();
+  Container _getItem(BuildContext context, int index) {
+    if (index % 2 == 0)
+      return _getParentMessage(context, "Rudy Nowak", "elo makrelo");
+
+    return _getMessage(context, "Niebieski Nowak", "elo makrelo");
+  }
+
+  Container _getParentMessage(
+          BuildContext context, String _name, String text) =>
+      Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          child: Container(
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _getNameText(_name, context),
+                    new Container(
+                      margin: const EdgeInsets.only(top: 5.0),
+                      child: new Text(text,
+                          style: TextStyle(color: Colors.black54)),
+                    )
+                  ],
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: Color(0x99FFFBE9E7),
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              )));
+
+  Text _getNameText(String _name, BuildContext context) => Text(_name,
+      style: TextStyle(
+        color: Colors.black54,
+        fontWeight: FontWeight.bold,
+      ));
+
+  Container _getMessage(BuildContext context, String _name, String text) =>
+      Container(
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+          child: Container(
+              child: Padding(
+                padding: EdgeInsets.all(10),
+                child: new Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    _getNameText(_name, context),
+                    new Container(
+                      margin: const EdgeInsets.only(top: 5.0),
+                      child: new Text(text),
+                    )
+                  ],
+                ),
+              ),
+              decoration: BoxDecoration(
+                color: Color(0x99FFBBDEFB),
+                borderRadius: BorderRadius.all(Radius.circular(10.0)),
+              )));
 
   AppBar _appBar(BuildContext context) => AppBar(
         centerTitle: true,
