@@ -205,6 +205,7 @@ class _ChatPageState extends State<ChatPage> {
         currentUser.id, peerUser.id, message, this._smilePercent, false);
 
     await Provider.of<MessageState>(context).sendMessage(messageContent, chatId);
+    messageInputController.clear();
   }
 
   BoxDecoration _getMessageBoxDecoration() {
