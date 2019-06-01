@@ -27,6 +27,7 @@ class _ChatPageState extends State<ChatPage> {
   User peerUser;
   final messageInputController = new TextEditingController();
   String text = "text";
+  DateTime lastEyeDate = DateTime.now();
 
   double _smilePercent;
 
@@ -217,7 +218,7 @@ class _ChatPageState extends State<ChatPage> {
             .toList(),
         rotation: ImageRotation.rotation270);
     final FirebaseVisionImage visionImage = FirebaseVisionImage.fromBytes(image.planes[0].bytes, metadata);
-    final FaceDetectorOptions options = FaceDetectorOptions(enableClassification: true);
+    final FaceDetectorOptions options = FaceDetectorOptions(enableClassification: true, enableLandmarks: true);
     final FaceDetector faceRecognizer = FirebaseVision.instance.faceDetector(options);
     final List<Face> faces = await faceRecognizer.processImage(visionImage);
 
@@ -238,7 +239,10 @@ class _ChatPageState extends State<ChatPage> {
     this._leftEyeOpenPercent = leftEyeOpenPercent;
     this._rightEyeOpenPercent = rightEyeOpenPercent;
 
-    if (_isOnlyRightEyeOpen() || _isOnlyLeftEyeOpen()) {
+    var durationSinceLastEye = DateTime.now().difference(lastEyeDate);
+    if ((_isOnlyRightEyeOpen() || _isOnlyLeftEyeOpen()) && durationSinceLastEye.inSeconds > 2) {
+
+      lastEyeDate = DateTime.now();
       debugPrint("oczko");
     }
 
