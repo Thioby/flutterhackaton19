@@ -1,8 +1,10 @@
-class User {
-  final String id;
-  final String name;
-  final String email;
-  final String photoUrl;
+import 'package:emo_chat/models/user.dart';
 
-  User({this.id, this.name, this.email, this.photoUrl});
+class Message {
+  final User from;
+  final User to;
+  final String content;
+  final String chatId;
+
+  Message(this.from, this.to, this.content, this.chatId);
 }
